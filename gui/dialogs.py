@@ -5,6 +5,7 @@ from pathlib import Path
 from .colors import *
 import shutil
 import json
+import os
 
 class Dialogs:
 
@@ -17,6 +18,7 @@ class Dialogs:
     def __save_dialog_code(self, parent, codepathstringvar):
         pathcode = filedialog.asksaveasfile(
             parent=parent,
+            initialdir=os.getcwd(),
             defaultextension=".txt",
             filetypes=[("Archivos de texto", "*.txt"), ("Todos los archivos", "*.*")],
             title="Guardar archivo como"
@@ -29,12 +31,18 @@ class Dialogs:
 
                 content = self.codeText.get(1.0, 'end-1c')
                 contentreplaced = content.replace("<", "&lt;").replace(">", "&gt;")
-                codepathstringvar.set(pathcode.name)
 
-                with open(pathcode.name, 'w', encoding='utf-8') as f:
-                    f.write(contentreplaced)
-                messagebox.showinfo("Éxito", f"Archivo guardado en: {pathcode.name}", parent=parent)
-                parent.destroy()
+                if pathcode.name.startswith(os.getcwd()):
+                    pathcoderelative = pathcode.name.replace(os.getcwd(), ".")
+                    codepathstringvar.set(pathcoderelative)
+
+                    with open(pathcode.name, 'w', encoding='utf-8') as f:
+                        f.write(contentreplaced)
+                    messagebox.showinfo("Éxito", f"Archivo guardado en: {pathcode.name}", parent=parent)
+                    parent.destroy()
+                else:
+                    os.remove(pathcode.name)
+                    messagebox.showerror("Error", "Elija un subdirectorio!!!", parent=parent)        
             except Exception as e:
                 messagebox.showerror("Error", f"No se pudo guardar el archivo: {e}", parent=parent)
 
@@ -110,19 +118,27 @@ class Dialogs:
             title="Abrir imagen"
         )
 
+        print(os.getcwd())
+
         if pathopenimage:
             widget.set(pathopenimage.name)
 
     def save_dialog_image(self, parent, widget):
         pathsaveimage = filedialog.asksaveasfile(
             parent=parent,
+            initialdir=os.getcwd(),
             defaultextension=".png",
             filetypes=[("Archivos de imagen", "*.png"), ("Todos los archivos", "*.*")],
             title="Guardar archivo como"
         )
 
-        if pathsaveimage:
-            widget.set(pathsaveimage.name)
+        if pathsaveimage and pathsaveimage.name.startswith(os.getcwd()):
+            pathfinal = pathsaveimage.name.replace(os.getcwd(), ".")
+            widget.set(pathfinal)
+        else:
+            if pathsaveimage:
+                os.remove(pathsaveimage.name)
+            messagebox.showerror("Error", f"Elija un subdirectorio para guardar el archivo!!!", parent=parent)      
             
     def copy_image(self, parent, widget):
         if self.fileorigin.get() and self.filetarget.get():

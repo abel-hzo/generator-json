@@ -33,7 +33,7 @@ class Operations():
     def build_json(self):
         post = Post()
         post.header_title = self.maingui.header_title.get()
-        post.header_image = self.maingui.header_image.get()
+        post.header_image = self.maingui.header_image.get().replace(".", "", 1)
         post.title = self.maingui.title.get()
         post.author = self.maingui.author.get()
 
@@ -49,13 +49,13 @@ class Operations():
 
             if contentblock.codepath.get():
                 code = Codigo()
-                code.path = contentblock.codepath.get()
+                code.path = contentblock.codepath.get().replace(".", "", 1)
                 code.lang = contentblock.dialogs.lang
                 content.code = code.__dict__
 
             if contentblock.imagesrc.get():
                 image = Imagen()
-                image.src = contentblock.imagesrc.get()
+                image.src = contentblock.imagesrc.get().replace(".", "", 1)
                 image.maxwidth = contentblock.dialogs.maxwidth.get()
                 content.image = image.__dict__
 
@@ -86,8 +86,8 @@ class Operations():
 
     def populate_from_json(self, data):
         self.maingui.header_title.set(data.get("header_title", ""))
-        self.maingui.header_image.set(data.get("header_image", ""))
-        self.maingui.dialogs.filetarget.set(data.get("header_image", ""))
+        self.maingui.header_image.set(f".{data.get("header_image", "")}")
+        self.maingui.dialogs.filetarget.set(f".{data.get("header_image", "")}")
         self.maingui.title.set(data.get("title", ""))
         self.maingui.author.set(data.get("author", ""))
 
@@ -111,10 +111,12 @@ class Operations():
             contentgui.components.scrolltext.insert(1.0, text)
             # Obtenemos el JSON de la propiedad code y después establecemos sus valores.
             codigo = data.get("code", {})
-            contentgui.codepath.set(codigo.get("path", ""))
-            contentgui.dialogs.lang = codigo.get("lang", "")
+            if codigo.get("path", ""):
+                contentgui.codepath.set(f".{codigo.get("path", "")}")
+                contentgui.dialogs.lang = codigo.get("lang", "")
             # Obtenemos el JSON de la propiedad image y después establecemos sus valores.
             imagen = data.get("image", {})
-            contentgui.imagesrc.set(imagen.get("src", ""))
-            contentgui.dialogs.filetarget.set(imagen.get("src", ""))
-            contentgui.dialogs.maxwidth.set(imagen.get("maxwidth", "-1px"))
+            if imagen.get("src", ""):
+                contentgui.imagesrc.set(f".{imagen.get("src", "")}")
+                contentgui.dialogs.filetarget.set(f".{imagen.get("src", "")}")
+                contentgui.dialogs.maxwidth.set(imagen.get("maxwidth", "-1px"))
