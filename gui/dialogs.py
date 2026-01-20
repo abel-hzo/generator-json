@@ -16,6 +16,21 @@ class Dialogs:
         self.maxwidth = tk.StringVar()
 
     def __save_dialog_code(self, parent, codepathstringvar):
+
+        if codepathstringvar.get():
+            try:
+                content = self.codeText.get(1.0, 'end-1c')
+                contentreplaced = content.replace("<", "&lt;").replace(">", "&gt;")
+
+                with open(codepathstringvar.get(), 'w', encoding='utf-8') as f:
+                    f.write(contentreplaced)
+
+                messagebox.showinfo("Éxito", f"Archivo guardado en: {codepathstringvar.get()}", parent=parent)
+                parent.destroy()
+                return
+            except Exception as e:
+                messagebox.showerror("Error", f"No se pudo guardar el archivo: {e}", parent=parent)    
+
         pathcode = filedialog.asksaveasfile(
             parent=parent,
             initialdir=os.getcwd(),

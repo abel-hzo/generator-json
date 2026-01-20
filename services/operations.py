@@ -9,6 +9,7 @@ from dtos.post import Post
 class Operations():
     def __init__(self, maingui):
         self.maingui = maingui
+        self.filejson = None
 
     def export_json(self):
         print("Generando JSON")
@@ -16,10 +17,18 @@ class Operations():
             messagebox.showerror("Error", "Agrega al menos un contenido.")
             return
         
+        if self.filejson:
+            with open(self.filejson, "w", encoding="utf-8") as f:
+                json.dump(self.build_json(), f, indent=4, ensure_ascii=False)
+            messagebox.showinfo("Exito", "Archivo JSON generado correctamente.")    
+            return    
+        
         pathjson = filedialog.asksaveasfilename(
             defaultextension=".json",
             filetypes=[("JSON", ".json")]
         )
+
+        self.filejson = pathjson
 
         if not pathjson:
             return
@@ -75,6 +84,8 @@ class Operations():
         path = filedialog.askopenfilename(
             filetypes=[("JSON Files", "*.json")]
         )
+
+        self.filejson = path
 
         if not path:
             return
